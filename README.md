@@ -82,9 +82,18 @@ it can't read. Anything that changes the shape without changing the content move
 <!-- Write the rule in words, then give the numbers. What happens when the two
      signals disagree? -->
 
-**The rule:**
+**The rule:** an average, but leaning toward whichever signal says human.
 
-**The numbers:**
+**The numbers:** an equal-weight average of the two signals.
+
+```
+final_score = 0.5 × model_score + 0.5 × style_score
+```
+
+- `WEIGHT_MODEL_SIGNAL = 0.5`, `WEIGHT_STYLE_SIGNAL = 0.5` (in `config.py`)
+- Both inputs and the output run 0.0 (human) to 1.0 (AI)
+- Label thresholds: below `0.35` → human, `0.35 – 0.65` → unsure, above `0.65` → AI
+
 
 **Where it lives:** `scoring.py::combine_signals`
 
@@ -93,7 +102,16 @@ it can't read. Anything that changes the shape without changing the content move
 
 **A case where my two signals split, and what my rule does with it:**
 
+*Example (equal average):*
 
+| | model_score | style_score | final_score | Label |
+|---|---|---|---|---|
+| Signals agree (AI) | 0.90 | 0.80 | 0.5 × 0.90 + 0.5 × 0.80 = **0.85** | high-confidence AI |
+| Signals agree (human) | 0.20 | 0.10 | 0.5 × 0.20 + 0.5 × 0.10 = **0.15** | high-confidence human |
+| Signals split | 0.90 | 0.10 | 0.5 × 0.90 + 0.5 × 0.10 = **0.50** | unsure |
+
+When the signals split, neither one can push the score into a confident label
+on its own. Disagreement between the two methods is treated as uncertainty.
 
 ---
 
