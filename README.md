@@ -39,7 +39,14 @@
 <!-- The path a submission takes, from arriving to the label a reader sees.
      Six or seven steps — this is the trace you wrote in Milestone 1. -->
 
-
+Steps:
+1. Request arrives at server (app.py)
+2. Submit Function is called
+3. Signal one is GPT-2 adding a model_score using detector.py
+4. Signal two is style_score using stylometry.py
+5. We combine the two signals at next step
+6. We add a guess using score_to_label function in scoring.py
+7. audit.py adds a permanent record with content_id
 
 ---
 
