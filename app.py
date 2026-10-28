@@ -200,16 +200,19 @@ def submit():
     a malformed input is one of the most common real failures there is.
     """
     payload = request.get_json(silent=True) or {}
+    text = payload.get("text")
+    creator_id = payload.get("creator_id")
 
-    # TODO: delete this and build the route.
+    # Milestone 3, step 1: a hardcoded response, so a broken route can't hide
+    # behind a broken signal. Real values replace these one step at a time.
     return jsonify({
-        "error": "not_implemented",
-        "message": "POST /submit isn't built yet — see the TODO in app.py.",
-        "you_sent": {
-            "text_length": len(payload.get("text", "")),
-            "creator_id": payload.get("creator_id"),
-        },
-    }), 501
+        "content_id": "hardcoded-id",
+        "guess": "unsure",
+        "confidence": 0.0,
+        "label": "Temporary label",
+        "model_score": 0.0,
+        "style_score": 0.0,
+    })
 
 
 @app.post("/appeal")
@@ -236,10 +239,11 @@ def appeal():
 
     # TODO: delete this and build the route.
     return jsonify({
-        "error": "not_implemented",
-        "message": "POST /appeal isn't built yet — see the TODO in app.py.",
-        "you_sent": payload,
-    }), 501
+        "ok": True,
+        "message": "[]",
+        "you_sent": payload.get("message"),
+        "service": "provenance-guard",
+    }), 200
 
 
 # ── Already works ─────────────────────────────────────────────────────────────
