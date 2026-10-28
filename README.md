@@ -60,19 +60,22 @@ Steps:
 
 ### Signal one — the model signal
 
-**What it measures:**
+**What it measures:** It measures how predictable the text is to GPT-2
 
 **Why that might differ between human and AI writing:**
+GPT-2 checks the text and calculates a perplexity score. If it can predict the writing easily - then it is AI-like, if not then it is more human like. Lower perplexity means high chance of AI written.
 
 **What it can't see:**
+Predictable does not always mean AI-written. A simple writing style could be used by many humans. Also if a prose is full of fancy jargon words, it would be treated as human written, even when AI might have written that.
 
 ### Signal two — the style signal
 
-**What it measures:**
+**What it measures:** It measures the shape of the text. Three measures are - sentence_length_spread, type_token_ratio and punctuation_density
 
 **Why that might differ between human and AI writing:**
-
+human writing is lumpy. A three-word sentence can sit next to a forty-word one. AI writing tends to march along evenly.
 **What it can't see:**
+it can't read. Anything that changes the shape without changing the content moves the score: adding typos, chopping up sentences, pasting in a quote. That's a cheap trick to pull on purpose, and the Unit 8 attacks will use it.
 
 ### The combining rule
 
