@@ -213,10 +213,21 @@ def submit():
         return jsonify({"error": "text_too_short", "message": str(exc)}), 400
 
     content_id = str(uuid.uuid4())
+    guess = "unsure"
+
+    # Milestone 3, step 4: every decision goes to logs/audit.jsonl. /appeal
+    # finds a submission by its content_id here, so this has to happen first.
+    audit.log_decision(
+        content_id=content_id,
+        creator_id=creator_id,
+        guess=guess,
+        model_score=model_score,
+        status="decided",
+    )
 
     return jsonify({
         "content_id": content_id,
-        "guess": "unsure",
+        "guess": guess,
         "confidence": 0.0,
         "label": "Temporary label",
         "model_score": model_score,
