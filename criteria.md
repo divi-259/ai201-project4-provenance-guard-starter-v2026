@@ -42,63 +42,66 @@ Two things worth knowing before you pick numbers:
   a **miss**.
 
 ---
-## 1.
+## 1. My own writing is rarely called AI
 
-<!-- Your criterion. It must name a number. -->
+Of 10 pieces I wrote myself, **at most 2** is labelled high-confidence AI, in
+**every one** of the three trials.
 
-
-
-**Why this target:**
-
-
-
----
-
-## 2.
-
-<!-- Your criterion. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** a wrong accusation is the expensive mistake on a writing
+site. It costs a real person their credibility, while a missed AI piece costs
+the site a little. Signal one is known to push plain writing toward "AI", so 2
+in 10 is strict enough to matter but not so strict that the first ordinary
+paragraph sinks it.
 
 ---
 
-## 3.
+## 2. Clearly AI and clearly human text score far apart
 
-<!-- Your criterion. -->
+The average final score of 5 clearly AI-generated texts is **at least 0.30
+higher** than the average of 5 clearly human-written texts, in every trial.
 
-
-
-**Why this target:**
-
-
-
----
-
-## 4.
-
-<!-- Your criterion. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** if the two groups score close together, the labels are
+mostly noise, and any small wobble between trials flips them. A gap of 0.30 is
+the width of my unsure band (0.35 – 0.65), so clear cases on each side can land
+outside it instead of piling up in the middle.
 
 ---
 
-## 5.
+## 3. All three labels are reachable
 
-<!-- Your criterion. -->
+Of 9 inputs chosen to cover the range (3 clearly AI, 3 clearly human, 3
+borderline), **each of the three labels appears at least once** in every trial.
 
+**Why this target:** a label nobody can reach is a gap in the system, not a
+design. A style signal that barely moves can quietly squeeze the final score
+into the middle, so that "AI" or "human" never shows up. This criterion catches
+that.
 
+---
 
-**Why this target:**
+## 4. Every appeal is applied and recorded
 
+For 5 appeals against real `content_id`s, **5 out of 5** change the
+submission's status to "under review" **and** write an appeal entry to the
+audit log. An appeal against a `content_id` that doesn't exist returns a 404
+and is logged too.
 
+**Why this target:** the appeal is the only protection a wrongly accused writer
+has. If even one appeal silently does nothing, that person has been accused
+with no way back. That's why the target is 100%, not "most".
+
+---
+
+## 5. Bad input is rejected cleanly
+
+For 4 malformed requests (empty `text`, missing `text`, `text` set to null, and
+`text` over 50,000 words), **all 4** return a 4xx status with a JSON error
+message, **none** return a 500 or crash the service, and every rejection
+appears in the audit log.
+
+**Why this target:** bad input is cheap to send and the attack set will send
+it. A 500 or a crash means one careless or hostile request can take the
+service down for everyone. 
 
 ---
 
