@@ -30,6 +30,7 @@ from flask import Flask, jsonify, request
 
 import audit
 import config
+import detector
 
 app = Flask(__name__)
 
@@ -203,14 +204,22 @@ def submit():
     text = payload.get("text")
     creator_id = payload.get("creator_id")
 
-    # Milestone 3, step 1: a hardcoded response, so a broken route can't hide
-    # behind a broken signal. Real values replace these one step at a time.
+    # Milestone 3, step 3: signal one is real. Confidence, label and the style
+    # score are still placeholders until Milestones 4 and 5.
+    try:
+        model_score = detector.model_signal(text)
+    except ValueError as exc:
+        # The detector refuses anything under three tokens.
+        return jsonify({"error": "text_too_short", "message": str(exc)}), 400
+
+    content_id = str(uuid.uuid4())
+
     return jsonify({
-        "content_id": "hardcoded-id",
+        "content_id": content_id,
         "guess": "unsure",
         "confidence": 0.0,
         "label": "Temporary label",
-        "model_score": 0.0,
+        "model_score": model_score,
         "style_score": 0.0,
     })
 
