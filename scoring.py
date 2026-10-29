@@ -51,12 +51,29 @@ def combine_signals(model_score: float, style_score: float) -> float:
 
     The weights in config.py are placeholders. Change them, or ignore them and
     write a different rule.
+
+    rule: an average, but leaning toward whichever signal says human.
+
+      - When the two agree (within DISAGREEMENT_GAP of each other), it's the
+        plain weighted average.
+      - When they disagree by more than that, the result is pulled halfway from
+        the average toward the lower of the two — the one reading the text as
+        more human.
+
+    Why: a wrong accusation costs a writer far more than a missed AI text costs
+    the site, and both signals have blind spots that push plain human writing
+    toward "AI". When they split, I'd rather the doubt go to the writer.
     """
-    # TODO: replace this
-    return (
+    average = (
         config.WEIGHT_MODEL_SIGNAL * model_score
         + config.WEIGHT_STYLE_SIGNAL * style_score
-    )
+    ) / (config.WEIGHT_MODEL_SIGNAL + config.WEIGHT_STYLE_SIGNAL)
+
+    if abs(model_score - style_score) <= config.DISAGREEMENT_GAP:
+        return round(average, 4)
+
+    more_human = min(model_score, style_score)
+    return round((average + more_human) / 2, 4)
 
 
 def score_to_label(score: float) -> tuple[str, str]:

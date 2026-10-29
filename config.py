@@ -57,6 +57,10 @@ DETECTOR_MAX_TOKENS = 400
 WEIGHT_MODEL_SIGNAL = 0.5
 WEIGHT_STYLE_SIGNAL = 0.5
 
+# How far apart the two signals can be before they count as disagreeing. Past
+# this, combine_signals leans toward the one that reads more human.
+DISAGREEMENT_GAP = 0.3
+
 
 # ─── Thresholds (Milestone 5) ────────────────────────────────────────────────
 # Where one label becomes another. Scores run 0.0 (confidently human) to 1.0
