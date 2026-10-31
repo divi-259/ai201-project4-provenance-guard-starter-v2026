@@ -206,8 +206,6 @@ def submit():
     text = payload.get("text")
     creator_id = payload.get("creator_id")
 
-    # Milestone 4: both signals are real and combined. Confidence and label
-    # are still placeholders until Milestone 5.
     try:
         model_score = detector.model_signal(text)
     except ValueError as exc:
@@ -218,7 +216,9 @@ def submit():
     combined_score = scoring.combine_signals(model_score, style_score)
 
     content_id = str(uuid.uuid4())
-    guess = "unsure"
+    guess, label = scoring.score_to_label(combined_score)
+    # How far the score sits from a coin flip: 0.0 at 0.5, 1.0 at either end.
+    confidence = round(abs(combined_score - 0.5) * 2, 4)
 
     # Milestone 3, step 4: every decision goes to logs/audit.jsonl. /appeal
     # finds a submission by its content_id here, so this has to happen first.
@@ -229,14 +229,15 @@ def submit():
         model_score=model_score,
         style_score=style_score,
         combined_score=combined_score,
+        label=label,
         status="decided",
     )
 
     return jsonify({
         "content_id": content_id,
         "guess": guess,
-        "confidence": 0.0,
-        "label": "Temporary label",
+        "confidence": confidence,
+        "label": label,
         "model_score": model_score,
         "style_score": style_score,
         "combined_score": combined_score,
@@ -264,14 +265,32 @@ def appeal():
     wrong accusation and nothing at all.
     """
     payload = request.get_json(silent=True) or {}
+    content_id = payload.get("content_id")
+    reasoning = payload.get("reasoning")
 
-    # TODO: delete this and build the route.
+    if not isinstance(reasoning, str) or not reasoning.strip():
+        return jsonify({
+            "error": "missing_reasoning",
+            "message": "Tell us why you think the result is wrong.",
+        }), 400
+
+    entries = audit.entries_for(content_id) if content_id else []
+    if not entries:
+        return jsonify({
+            "error": "unknown_content_id",
+            "message": "We couldn't find a submission with that id.",
+        }), 404
+
+    creator_id = entries[0].get("creator_id")
+    audit.log_appeal(content_id=content_id, creator_id=creator_id, reasoning=reasoning)
+
     return jsonify({
         "ok": True,
-        "message": "[]",
-        "you_sent": payload.get("message"),
-        "service": "provenance-guard",
-    }), 200
+        "content_id": content_id,
+        "status": "under_review",
+        "message": "Thanks. A person will review this submission. Nothing changes "
+                   "until they do.",
+    })
 
 
 # ── Already works ─────────────────────────────────────────────────────────────
